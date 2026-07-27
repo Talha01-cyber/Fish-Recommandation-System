@@ -1,25 +1,534 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Fish Suitability Predictor</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AquaRecommend - Intelligent Fish Suitability Predictor</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom Style Sheet -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
   </head>
   <body>
-    <h2>Enter Water Parameters</h2>
-    <form method="POST" action="/predict">
-      <label>pH:</label>
-      <input type="number" step="0.01" name="ph" required />
+    <!-- Background Animated Waves -->
+    <div class="water-bg">
+      <div class="bubble bubble-1"></div>
+      <div class="bubble bubble-2"></div>
+      <div class="bubble bubble-3"></div>
+      <div class="bubble bubble-4"></div>
+    </div>
 
-      <label>Temperature (°C):</label>
-      <input type="number" step="0.01" name="temperature" required />
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-9m-12 12c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l-3 3m3-3l3 3M9 8.25h.008v.008H9V8.25zm.008 5.25H9v.008h.008V13.5zm3.75-5.25h.008v.008h-.008V8.25zm.008 5.25h-.008v.008h.008V13.5zm3.75-5.25h.008v.008h-.008V8.25zm.008 5.25h-.008v.008h.008V13.5z" />
+          </svg>
+          <h1>AquaRecommend</h1>
+        </div>
+        <p class="subtitle">AI-Powered Water Quality Analysis & Fish Recommendation</p>
+      </header>
 
-      <label>Turbidity (NTU):</label>
-      <input type="number" step="0.01" name="turbidity" required />
+      <!-- Main Card -->
+      <main class="glass-card">
+        <!-- Section 1: Form Inputs -->
+        <section id="input-section" class="card-section active">
+          <h2 class="section-title">Configure Water Parameters</h2>
+          <p class="section-desc">Adjust the water chemistry sliders to predict the most suitable fish species for your environment.</p>
 
-      <input type="submit" value="Predict Suitable Fish" />
-    </form>
+          <form id="predict-form" class="interactive-form">
+            <!-- pH Control -->
+            <div class="input-group">
+              <div class="input-header">
+                <span class="input-label">
+                  <span class="icon">pH</span>
+                  Potential of Hydrogen
+                </span>
+                <span id="ph-badge" class="value-badge badge-neutral">7.0</span>
+              </div>
+              <input
+                type="range"
+                id="ph"
+                name="ph"
+                min="0"
+                max="14"
+                step="0.1"
+                value="7.0"
+                class="slider-control ph-slider"
+              />
+              <div class="slider-labels">
+                <span>0 (Acidic)</span>
+                <span>7 (Neutral)</span>
+                <span>14 (Alkaline)</span>
+              </div>
+            </div>
+
+            <!-- Temperature Control -->
+            <div class="input-group">
+              <div class="input-header">
+                <span class="input-label">
+                  <span class="icon">°C</span>
+                  Water Temperature
+                </span>
+                <span id="temp-badge" class="value-badge badge-neutral">25.0 °C</span>
+              </div>
+              <input
+                type="range"
+                id="temperature"
+                name="temperature"
+                min="0"
+                max="45"
+                step="0.5"
+                value="25.0"
+                class="slider-control temp-slider"
+              />
+              <div class="slider-labels">
+                <span>0°C (Cold)</span>
+                <span>25°C (Temperate)</span>
+                <span>45°C (Tropical)</span>
+              </div>
+            </div>
+
+            <!-- Turbidity Control -->
+            <div class="input-group">
+              <div class="input-header">
+                <span class="input-label">
+                  <span class="icon">NTU</span>
+                  Water Turbidity
+                </span>
+                <span id="turbidity-badge" class="value-badge badge-neutral">5.0 NTU</span>
+              </div>
+              <input
+                type="range"
+                id="turbidity"
+                name="turbidity"
+                min="0"
+                max="20"
+                step="0.1"
+                value="5.0"
+                class="slider-control turbidity-slider"
+              />
+              <div class="slider-labels">
+                <span>0 NTU (Crystal Clear)</span>
+                <span>10 NTU (Cloudy)</span>
+                <span>20 NTU (Muddy)</span>
+              </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="action-btn">
+              <span>Recommend Ideal Fish</span>
+              <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </form>
+        </section>
+
+        <!-- Section 2: Loading Process -->
+        <section id="process-section" class="card-section">
+          <h2 class="section-title">ML Pipeline Execution</h2>
+          <p class="section-desc">Classifying optimal environment via Random Forest Model...</p>
+
+          <div class="progress-bar-container">
+            <div id="pipeline-progress" class="progress-bar-fill"></div>
+          </div>
+
+          <ul class="pipeline-steps">
+            <li id="step-1" class="step">
+              <span class="step-indicator"></span>
+              <span class="step-text">Reading water parameters...</span>
+            </li>
+            <li id="step-2" class="step">
+              <span class="step-indicator"></span>
+              <span class="step-text">Normalizing feature values...</span>
+            </li>
+            <li id="step-3" class="step">
+              <span class="step-indicator"></span>
+              <span class="step-text">Querying Random Forest model...</span>
+            </li>
+            <li id="step-4" class="step">
+              <span class="step-indicator"></span>
+              <span class="step-text">Decoding classification labels...</span>
+            </li>
+            <li id="step-5" class="step">
+              <span class="step-indicator"></span>
+              <span class="step-text">Generating recommendation report...</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Section 3: Prediction Result -->
+        <section id="result-section" class="card-section">
+          <div class="result-header">
+            <div class="badge-success-glow">Optimal Match Found!</div>
+            <h2 id="result-fish-name" class="fish-name-title">Tilapia</h2>
+            <p id="result-fish-desc" class="fish-description">Tilapia is highly adaptable...</p>
+          </div>
+
+          <!-- Analysis Charts Container -->
+          <div class="comparison-dashboard">
+            <h3>Comparison Dashboard</h3>
+            <p class="chart-subtitle">Comparing your inputs with the species' optimal tolerances</p>
+
+            <!-- pH Chart -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <span>pH Levels</span>
+                <span id="chart-ph-lbl">Input: 7.0 | Ideal: 5.6 - 9.0</span>
+              </div>
+              <div class="comparison-track-bg">
+                <div id="chart-ph-safe" class="comparison-safe-range"></div>
+                <div id="chart-ph-pin" class="comparison-pin"></div>
+              </div>
+              <div class="chart-footer">
+                <span>0</span>
+                <span>7</span>
+                <span>14</span>
+              </div>
+            </div>
+
+            <!-- Temp Chart -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <span>Temperature (°C)</span>
+                <span id="chart-temp-lbl">Input: 25.0°C | Ideal: 17.5 - 35.0°C</span>
+              </div>
+              <div class="comparison-track-bg">
+                <div id="chart-temp-safe" class="comparison-safe-range"></div>
+                <div id="chart-temp-pin" class="comparison-pin"></div>
+              </div>
+              <div class="chart-footer">
+                <span>0°C</span>
+                <span>25°C</span>
+                <span>45°C</span>
+              </div>
+            </div>
+
+            <!-- Turbidity Chart -->
+            <div class="chart-group">
+              <div class="chart-header">
+                <span>Turbidity (NTU)</span>
+                <span id="chart-turbidity-lbl">Input: 5.0 NTU | Ideal: 3.0 - 7.2 NTU</span>
+              </div>
+              <div class="comparison-track-bg">
+                <div id="chart-turbidity-safe" class="comparison-safe-range"></div>
+                <div id="chart-turbidity-pin" class="comparison-pin"></div>
+              </div>
+              <div class="chart-footer">
+                <span>0 NTU</span>
+                <span>10 NTU</span>
+                <span>20 NTU</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips & Advice -->
+          <div class="tips-box">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <div>
+              <strong>Quick Care Tip:</strong>
+              <span id="result-fish-tips">Maintain oxygen flow...</span>
+            </div>
+          </div>
+
+          <!-- Reset Button -->
+          <button id="reset-btn" class="action-btn outline">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.214-.722 5.002 5.002 0 007.778 2.665H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.722-1.214z" clip-rule="evenodd" />
+            </svg>
+            <span>Analyze New Environment</span>
+          </button>
+        </section>
+      </main>
+    </div>
+
+    <!-- Javascript Logical Controller -->
+    <script>
+      // Database of Fish Tolerances and Metadata
+      const fishMetadata = {
+        tilapia: {
+          name: "Tilapia",
+          desc: "Tilapia is a robust, highly adaptable fish that is extremely popular in commercial aquaculture. It exhibits fast growth and handles environmental changes exceptionally well.",
+          ph: { min: 5.6, max: 9.0, mean: 7.83 },
+          temp: { min: 17.5, max: 35.0, mean: 19.55 },
+          turb: { min: 3.0, max: 7.2, mean: 3.80 },
+          tips: "Prefers warm temperatures. Tolerates fluctuating water quality and lower dissolved oxygen better than most other species."
+        },
+        rui: {
+          name: "Rui (Rohu)",
+          desc: "Rui is a species of the carp family widely cultivated in South Asia. It is a column feeder and prefers clean, well-oxygenated water.",
+          ph: { min: 6.0, max: 8.9, mean: 7.06 },
+          temp: { min: 20.87, max: 35.0, mean: 22.43 },
+          turb: { min: 3.31, max: 7.5, mean: 3.75 },
+          tips: "Requires clean water with high aeration. It is sensitive to highly acidic waters below pH 6.0."
+        },
+        pangas: {
+          name: "Pangas (Yellowtail Catfish)",
+          desc: "Pangas is a fast-growing catfish species that thrives in warm climates. It is highly valued for intensive aquaculture setups due to its high density tolerance.",
+          ph: { min: 6.5, max: 9.0, mean: 8.46 },
+          temp: { min: 17.81, max: 30.0, mean: 21.55 },
+          turb: { min: 1.0, max: 6.8, mean: 3.69 },
+          tips: "Thrives in slightly alkaline water. Needs consistent feeding and high stocking parameters to grow optimally."
+        },
+        silverCup: {
+          name: "Silver Cup (Silver Carp)",
+          desc: "Silver Carp is a filter-feeding freshwater species. It plays a key role in ecological farming by grazing on excessive green algae and maintaining water clarity.",
+          ph: { min: 6.0, max: 8.8, mean: 6.82 },
+          temp: { min: 21.06, max: 32.0, mean: 22.23 },
+          turb: { min: 3.56, max: 7.0, mean: 3.89 },
+          tips: "Controls organic algae blooms efficiently. Be cautious, as they are strong jumpers when startled by noise."
+        },
+        katla: {
+          name: "Katla (Indian Carp)",
+          desc: "Katla is a surface-feeding freshwater carp. It has a high growth rate and broad head, feeding extensively on zooplankton near the surface.",
+          ph: { min: 6.0, max: 8.5, mean: 7.69 },
+          temp: { min: 21.12, max: 32.0, mean: 23.18 },
+          turb: { min: 3.6, max: 5.5, mean: 3.74 },
+          tips: "Ideal for polyculture ponds. Pair them with bottom-feeders to efficiently utilize the entire water column."
+        },
+        sing: {
+          name: "Sing (Asian Catfish / Shingi)",
+          desc: "Sing is an air-breathing freshwater catfish known for its rich nutritional value. It can survive in shallow, swampy, and low-oxygen environments.",
+          ph: { min: 6.5, max: 8.5, mean: 7.33 },
+          temp: { min: 21.0, max: 32.0, mean: 23.49 },
+          turb: { min: 3.56, max: 7.5, mean: 4.48 },
+          tips: "Thrives in muddy or organic bottoms. Highly robust and can breathe atmospheric air using an accessory respiratory organ."
+        },
+        shrimp: {
+          name: "Shrimp",
+          desc: "Shrimp are sensitive, high-value crustaceans. They require stable water conditions with clean parameters and clean sandy-muddy bottoms.",
+          ph: { min: 6.51, max: 7.9, mean: 7.15 },
+          temp: { min: 18.0, max: 32.0, mean: 22.14 },
+          turb: { min: 3.6, max: 15.8, mean: 6.83 },
+          tips: "Provide plenty of benthic cover and ensure highly stable pH levels, as shrimp molt frequently and are vulnerable during this time."
+        },
+        karpio: {
+          name: "Karpio (Common Carp)",
+          desc: "Common Carp is an extremely resilient bottom-feeder. It can survive in freezing winter temperatures and adapts to almost any pond system.",
+          ph: { min: 7.0, max: 7.5, mean: 7.24 },
+          temp: { min: 4.0, max: 30.0, mean: 19.36 },
+          turb: { min: 5.0, max: 10.0, mean: 7.68 },
+          tips: "Avoid overfeeding in cold water (below 10°C) as their metabolic rate drops drastically. Thrives in soft clay bottoms."
+        },
+        prawn: {
+          name: "Prawn",
+          desc: "Freshwater prawns require clean, tropical warm waters. They are territorial bottom dwellers that feed on plant material, small worms, and detritus.",
+          ph: { min: 7.3, max: 8.3, mean: 7.90 },
+          temp: { min: 26.0, max: 32.0, mean: 28.90 },
+          turb: { min: 4.0, max: 8.5, mean: 6.42 },
+          tips: "Keep stocking density moderate to prevent cannibalism. Requires high aeration and clean sandy bottoms."
+        },
+        koi: {
+          name: "Koi Carp",
+          desc: "Koi are colorful, domestic ornamental fish bred for decorative garden ponds. They are active, intelligent, and can live for decades.",
+          ph: { min: 5.5, max: 8.5, mean: 6.68 },
+          temp: { min: 18.0, max: 32.0, mean: 26.02 },
+          turb: { min: 4.0, max: 6.1, mean: 4.62 },
+          tips: "Install strong biological filtration systems to cope with high organic waste loads and keep the water clear for visibility."
+        },
+        magur: {
+          name: "Magur (Walking Catfish)",
+          desc: "Magur is an incredibly tough, air-breathing local catfish. It can crawl short distances over damp ground and survive in hypoxic pools.",
+          ph: { min: 7.1, max: 7.4, mean: 7.24 },
+          temp: { min: 21.0, max: 28.0, mean: 25.18 },
+          turb: { min: 7.0, max: 8.0, mean: 7.71 },
+          tips: "Pond boundaries must be fenced securely, as Magur can migrate out during heavy rainfall or wet nights."
+        }
+      };
+
+      // Input Sliders and Badges DOM bindings
+      const sliders = {
+        ph: { input: document.getElementById('ph'), badge: document.getElementById('ph-badge') },
+        temp: { input: document.getElementById('temperature'), badge: document.getElementById('temp-badge') },
+        turb: { input: document.getElementById('turbidity'), badge: document.getElementById('turbidity-badge') }
+      };
+
+      // Realtime Badge Updates & Colors
+      function updatePHBadge(val) {
+        sliders.ph.badge.textContent = Number(val).toFixed(1);
+        sliders.ph.badge.className = 'value-badge';
+        if (val < 6.0) {
+          sliders.ph.badge.classList.add('badge-acidic');
+        } else if (val > 8.5) {
+          sliders.ph.badge.classList.add('badge-alkaline');
+        } else {
+          sliders.ph.badge.classList.add('badge-neutral');
+        }
+      }
+
+      function updateTempBadge(val) {
+        sliders.temp.badge.textContent = Number(val).toFixed(1) + ' °C';
+        sliders.temp.badge.className = 'value-badge';
+        if (val < 15.0) {
+          sliders.temp.badge.classList.add('badge-cold');
+        } else if (val > 30.0) {
+          sliders.temp.badge.classList.add('badge-hot');
+        } else {
+          sliders.temp.badge.classList.add('badge-temperate');
+        }
+      }
+
+      function updateTurbBadge(val) {
+        sliders.turb.badge.textContent = Number(val).toFixed(1) + ' NTU';
+        sliders.turb.badge.className = 'value-badge';
+        if (val < 4.0) {
+          sliders.turb.badge.classList.add('badge-clear');
+        } else if (val > 10.0) {
+          sliders.turb.badge.classList.add('badge-muddy');
+        } else {
+          sliders.turb.badge.classList.add('badge-cloudy');
+        }
+      }
+
+      // Input Event Listeners
+      sliders.ph.input.addEventListener('input', (e) => updatePHBadge(e.target.value));
+      sliders.temp.input.addEventListener('input', (e) => updateTempBadge(e.target.value));
+      sliders.turb.input.addEventListener('input', (e) => updateTurbBadge(e.target.value));
+
+      // Initial Badge states
+      updatePHBadge(sliders.ph.input.value);
+      updateTempBadge(sliders.temp.input.value);
+      updateTurbBadge(sliders.turb.input.value);
+
+      // Section Transitions
+      const sections = {
+        input: document.getElementById('input-section'),
+        process: document.getElementById('process-section'),
+        result: document.getElementById('result-section')
+      };
+
+      function activateSection(secId) {
+        Object.values(sections).forEach(sec => sec.classList.remove('active'));
+        sections[secId].classList.add('active');
+      }
+
+      // Draw Comparison Chart Subsystem
+      function setupComparisonChart(trackId, safeId, pinId, valBadgeId, minBound, maxBound, safeMin, safeMax, userVal, unit) {
+        const safeStartPct = ((safeMin - minBound) / (maxBound - minBound)) * 100;
+        const safeWidthPct = ((safeMax - safeMin) / (maxBound - minBound)) * 100;
+        const pinPct = Math.max(0, Math.min(100, ((userVal - minBound) / (maxBound - minBound)) * 100));
+
+        const safeRangeEl = document.getElementById(safeId);
+        const pinEl = document.getElementById(pinId);
+        const valBadgeEl = document.getElementById(valBadgeId);
+
+        safeRangeEl.style.left = safeStartPct + '%';
+        safeRangeEl.style.width = safeWidthPct + '%';
+        pinEl.style.left = pinPct + '%';
+
+        // Check suitability
+        const isOptimal = userVal >= safeMin && userVal <= safeMax;
+        if (isOptimal) {
+          pinEl.className = 'comparison-pin pin-optimal';
+          safeRangeEl.classList.add('safe-glow');
+        } else {
+          pinEl.className = 'comparison-pin pin-warning';
+          safeRangeEl.classList.remove('safe-glow');
+        }
+
+        // Set Label
+        valBadgeEl.innerHTML = `Your Water: <strong>${userVal}${unit}</strong> | Ideal Range: <strong>${safeMin} - ${safeMax}${unit}</strong>`;
+      }
+
+      // Form Submit logical flow (Fetch & Process Animation)
+      const form = document.getElementById('predict-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Capture Inputs
+        const phVal = parseFloat(sliders.ph.input.value);
+        const tempVal = parseFloat(sliders.temp.input.value);
+        const turbVal = parseFloat(sliders.turb.input.value);
+
+        // Switch to Process Mode
+        activateSection('process');
+
+        // Reset step animations
+        const steps = [1, 2, 3, 4, 5].map(num => document.getElementById(`step-${num}`));
+        steps.forEach(step => step.className = 'step');
+        
+        const progressBar = document.getElementById('pipeline-progress');
+        progressBar.style.width = '0%';
+
+        // Start Fetch request early so it can resolve in background
+        let responsePromise = fetch('/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ ph: phVal, temperature: tempVal, turbidity: turbVal })
+        });
+
+        // Run animations sequential steps
+        const stepDelay = 650; // ms
+        for (let i = 0; i < 5; i++) {
+          steps[i].classList.add('active');
+          progressBar.style.width = ((i + 1) * 20) + '%';
+          await new Promise(r => setTimeout(r, stepDelay));
+          steps[i].classList.remove('active');
+          steps[i].classList.add('done');
+        }
+
+        // Resolve Backend Data
+        let predictedFishKey = 'tilapia'; // Default fallback
+        try {
+          const res = await responsePromise;
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.prediction) {
+              predictedFishKey = data.prediction.toLowerCase();
+            }
+          } else {
+            console.error("Predict endpoint error status:", res.status);
+          }
+        } catch (err) {
+          console.error("AJAX Fetch failed:", err);
+        }
+
+        // Render Result UI
+        const meta = fishMetadata[predictedFishKey] || fishMetadata.tilapia;
+
+        document.getElementById('result-fish-name').textContent = meta.name;
+        document.getElementById('result-fish-desc').textContent = meta.desc;
+        document.getElementById('result-fish-tips').textContent = meta.tips;
+
+        // Render Charts
+        setupComparisonChart(
+          'chart-ph-track', 'chart-ph-safe', 'chart-ph-pin', 'chart-ph-lbl',
+          0, 14, meta.ph.min, meta.ph.max, phVal, ''
+        );
+
+        setupComparisonChart(
+          'chart-temp-track', 'chart-temp-safe', 'chart-temp-pin', 'chart-temp-lbl',
+          0, 45, meta.temp.min, meta.temp.max, tempVal, '°C'
+        );
+
+        setupComparisonChart(
+          'chart-turbidity-track', 'chart-turbidity-safe', 'chart-turbidity-pin', 'chart-turbidity-lbl',
+          0, 20, meta.turb.min, meta.turb.max, turbVal, ' NTU'
+        );
+
+        // Transition to results page
+        activateSection('result');
+      });
+
+      // Reset application
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        activateSection('input');
+      });
+    </script>
   </body>
 </html>
