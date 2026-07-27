@@ -1,1 +1,1 @@
-
+It's a fish recommendation system which very first AI project. On that I have used random forest and The purpose of this program is to identify the best fish for the harvest according to the Temperature, PH and Turbidity of the water. 
